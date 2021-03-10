@@ -1,0 +1,486 @@
+---
+title: Figures
+---
+
+```{r}
+Sys.Date()
+```
+
+```{r}
+sessionInfo()
+```
+
+https://yulab-smu.top/biomedical-knowledge-mining-book/enrichplot.html#heatmap-like-functional-classification
+
+https://bioconductor.org/packages/release/bioc/vignettes/ensembldb/inst/doc/proteins.html
+https://bioconductor.org/packages/release/bioc/vignettes/ensembldb/inst/doc/proteins.html#4_Retrieve_proteins_from_the_database
+
+https://bioconductor.org/packages/release/bioc/vignettes/ensembldb/inst/doc/coordinate-mapping-use-cases.html
+https://bioconductor.org/packages/release/bioc/vignettes/ensembldb/inst/doc/coordinate-mapping.html#3_Mapping_genomic_coordinates_to_protein-relative_coordinates
+
+https://www.rdocumentation.org/packages/ggraph
+https://www.rdocumentation.org/packages/ggsignif
+
+```{r}
+# https://www.bioconductor.org/packages/release/bioc/vignettes/AnnotationDbi/inst/doc/IntroToAnnotationPackages.pdf
+library(org.Hs.eg.db)
+columns(org.Hs.eg.db)
+help("PATH")
+help("PFAM")
+help("SMART")
+help("UNIPRO")
+help("PROSITE")
+```
+
+https://cran.r-project.org/web/packages/DT/index.html
+
+# Data
+
+```{r}
+SUPP_DIR <- normalizePath(paste(getwd(), "Supplementary", sep = "/"))
+DATA_DIR <- normalizePath(paste(SUPP_DIR, "data", sep = "/"))
+DATA_RAW <- normalizePath(paste(SUPP_DIR, "data-raw", sep = "/"))
+
+MAAYAN_GMT_DIR <- paste(DATA_RAW, "maayanlab.cloud", sep = "/")
+INTERPRO_BROWSE_DIR <- paste(DATA_RAW, "InterPro/Browse/", sep ="/")
+
+FIG_DIR <- normalizePath(paste(SUPP_DIR, "figures/fig", sep = "/"))
+TAB_DIR <- normalizePath(paste(SUPP_DIR, "figures/tab", sep = "/"))
+```
+
+```{r}
+SARS2.ORF3a.Hs <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.rds", sep = "/"))
+SARS2.ORF3a.Hs <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.InterPro.rds", sep = "/"))
+```
+
+```{r}
+SARS2.ORF3a.Hs %>%
+  dplyr::filter(Entrez.Gene.Interactor.B != "") %>%
+  dplyr::group_by(Experimental.System) %>% 
+  dplyr::add_tally() %>% 
+  dplyr::arrange(-n) %>%
+  dplyr::select(Experimental.System, n) %>%
+  dplyr::distinct(Experimental.System, .keep_all=T)
+```
+
+```{r}
+SARS2.ORF3a.Hs.InterPro <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.InterPro.rds", sep = "/"))
+SARS2.ORF3a.Hs.InterPro.Enrichment <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.InterPro.Enrichment.rds", sep = "/"))
+```
+
+# Methods 
+
+```{r}
+kableImage <- function(x, ...) {
+  kableExtra::kable(x) %>%
+  kableExtra::kable_styling(latex_options = c("striped")) %>%
+  kableExtra::as_image(...)
+}
+```
+
+## Venn Diagrams 
+
+CRAN package: [VennDiagram](https://cran.rstudio.com/web/packages/VennDiagram/VennDiagram.pdf)
+
+```{r , eval=F}
+# install.packages("VennDiagram")
+# library(VennDiagram)
+# 
+# venn.plot <- draw.pairwise.venn(100, 70, 30, c("First", "Second"))
+# grid.draw(venn.plot)
+# grid.newpage()
+```
+
+# Enrichment result 
+
+See the [documentation](https://yulab-smu.top/biomedical-knowledge-mining-book/enrichplot.html#heatmap-like-functional-classification).
+
+```{r}
+# p1 <- heatplot(enrichmentResult)
+# p2 <- heatplot(enrichmentResult, foldChange=enrichmentResult[["foldChange"]])
+# cowplot::plot_grid(p1, p2, ncol=1, labels=LETTERS[1:2])
+```
+
+## Graph networks 
+
+CRAN package: [ggraph](https://www.rdocumentation.org/packages/ggraph/versions/2.0.4)
+
+Bioconductor package: [RBGL](https://www.bioconductor.org/packages/release/bioc/html/RBGL.html)
+
+Bioconductor package: [RBGL::connectedComp](https://a-little-book-of-r-for-bioinformatics.readthedocs.io/en/latest/src/chapter11.html)
+
+```{r , eval=FALSE}
+SARS2.ORF3a.Hs.MSigDB.H <- readRDS("../Supplementary/data/SARS2.ORF3a.Hs.MSigDB.M.rds")
+
+SARS2.ORF3a.Hs.MSigDB.H@result %>% 
+  dplyr::filter(Description == "HALLMARK_COAGULATION")
+
+SARS2.ORF3a.Hs.MSigDB.H@result %>% 
+  dplyr::filter(Description == "HALLMARK_COMPLEMENT")
+```
+
+#### Significance anlysis 
+
+CRAN package: [ggsignif](https://www.rdocumentation.org/packages/ggsignif/versions/0.6.1)
+
+## Heatmaps
+
+Bioconductor package: [heatmaps](https://bioconductor.org/packages/release/bioc/html/heatmaps.html)
+
+### ELMER plot motif enrichment 
+
+Bioconductor vignette: ELMER [plots_motif_enrichment](https://bioconductor.org/packages/devel/bioc/vignettes/ELMER/inst/doc/plots_motif_enrichment.html)
+
+## Tree diagrams
+
+Bioconductor package: [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html)
+
+### CDTree: protein domain hierarchy viewer & editor 
+
+NCBI CDTree: [binaries](https://www.ncbi.nlm.nih.gov/Structure/cdtree/cdtree.shtml)
+
+# Sequences 
+
+Bioconductor package [Gviz](https://bioconductor.org/packages/release/bioc/html/Gviz.html)
+
+Bioconductor package [seqPattern](https://bioconductor.org/packages/release/bioc/vignettes/seqPattern/inst/doc/seqPattern.pdf)
+
+### Sequence logos 
+
+RCSB tools: [Protein feature viewer](https://www.rcsb.org/pages/visualize_features#visualize_seq-proteinfeatures)
+
+#### Dot-bracket annotations 
+
+Bioconductor package: [Structstrings](https://bioconductor.org/packages/release/bioc/vignettes/Structstrings/inst/doc/Structstrings.html)
+
+#### `ggseqlogo` 
+
+CRAN package: [ggseqlogo](https://cran.r-project.org/web/packages/ggseqlogo/index.html)
+
+```{r}
+plotSequenceMotifs <- function(masked, ...) {
+  .size <- 2.5
+  .ypos <- 2.5
+  .bumpy <- 0.5
+
+  occupied.x <- list(c(0,0))
+
+  msubject <- as.character(IRanges::subject(masked))
+  mranges <- as.matrix(IRanges::ranges(masked))
+
+  seqlogo <- ggseqlogo::ggseqlogo(as.character(msubject), ...)
+
+  for (n in 1:nrow(mranges)) {
+    xend <- mranges[n, 1]
+    xstart <- mranges[n, 2]
+    xcenter <- mean(c(xend, xstart))
+
+    occupied.x[[n]] <- c(xstart, xend)
+
+    bumps <- unlist(
+      lapply(occupied.x, function(x) {
+        xs <- x[1]; xe <- x[2]
+        ((xstart >= xs) & (xstart <= xe)) | ((xend >= xs) & (xend <= xe)) | ((xend >= xe) & (xstart <= xs))
+      })
+    )
+
+    if (any(bumps)) {
+      .ypos <- .ypos + (sum(bumps) * .bumpy)
+    }
+
+    seqlogo <- seqlogo +
+      ggplot2::annotate(
+        'segment', x = xstart, xend = xend, y = .ypos, yend = .ypos, size = .size
+      )
+
+    if (abs(xend - xstart) > 1) {
+      seqlogo <- seqlogo + ggplot2::annotate(
+        'text', x = xcenter, y = .ypos + 0.3, label = 'Text annotation'
+      )
+      
+      # geom_logo(seqs_dna$MA0001.1, stack_width = 0.90) +
+      # annotate('segment', x = 4, xend=8, y=1.2, yend=1.2, size=2) +
+      # annotate('text', x=6, y=1.3, label='Text annotation') +
+
+    }
+  }
+
+  return(seqlogo)
+}
+```
+
+Bioconductor package: [seqLogo](https://bioconductor.org/packages/release/bioc/vignettes/MotifDb/inst/doc/MotifDb.html)
+
+Bioconductor package: [DiffLogo](https://bioconductor.org/packages/release/bioc/vignettes/DiffLogo/inst/doc/DiffLogoBasics.pdf)
+
+## MyDomain logo 
+
+```{r}
+.myDomain.encodeHit <- function(
+  start = NA_integer_,
+  stop =  NA_integer_,
+  shape = NA_integer_,
+  color = NA_integer_,
+  label = NA_character_,
+  ...
+) {
+  stringr::str_interp(
+    "${start},${stop},${shape}_${color},${label}"
+  )
+}
+
+.myDomain.encodeRange <- function(
+  start = NA_integer_,
+  stop =  NA_integer_,
+  type = 0,
+  ...
+) {
+  stringr::str_interp(
+    "${start},${stop},${type}"
+  )
+}
+
+.myDomain.encodeSite <- function(
+  position = NA_integer_,
+  type = 0
+) {
+  stringr::str_interp(
+    "${start},${stop},${type}"
+  )
+}
+
+#' @example \code{
+#'.myDomain.encodeQuery(
+#'   hits = list(
+#' c(100, 200, 1, 1, "TEST"),
+#'     c(30, 90, 1, 2, "TEST2")
+#'   ),
+#'   len = 1000
+#' )
+#' }
+.myDomain.encodeQuery <- function(
+  len,
+  hscale = 1.0,
+  hits = list(),
+  sites = list(),
+  ranges = list(),
+  ...
+) {
+  .doEncode <- function(x, encoding) {
+    paste(
+     lapply(x, function(.x) {
+       if (any(is.na(.x))) return("")
+       do.call(encoding, as.list(.x))
+     }),
+     collapse = "+"
+    )
+  }
+
+  uhits <- .doEncode(hits, .myDomain.encodeHit)
+  usites <- .doEncode(sites, .myDomain.encodeSite)
+  uranges <- .doEncode(ranges, .myDomain.encodeRange)
+
+  gsub(
+    "\\+\\+", "+",
+    stringr::str_interp(
+      paste0(
+        "https://prosite.expasy.org/cgi-bin/prosite/PSImage.cgi",
+        "?hit=${uhits}&site=${usites}&range=${uranges}",
+        "&len=${len}&hscale=${hscale}"
+      )
+    )
+  )
+}
+
+Prosite.downloadPSImage <- function(idlist) {
+  lapply(
+    as.list(idlist),
+    function(params) {
+      # TODO::
+    }
+  )
+}
+```
+
+## Motifs 
+
+Bioconductor package: [Biostrings::maskMotif](http://web.mit.edu/~r/current/arch/i386_linux26/lib/R/library/Biostrings/html/maskMotif.html)
+
+Bioconductor package: [Biostrings::letterFrequency](https://rdrr.io/bioc/Biostrings/man/letterFrequency.html)
+
+```{r}
+library(Biostrings)
+
+aastring <- Biostrings::AAString("AxyxyxBC")
+Biostrings::mask(aastring, 2, 6)
+```
+
+### `universalmotif` 
+
+Bioconductor package: [universalmotif](https://www.bioconductor.org/packages/release/bioc/html/universalmotif.html)
+
+### `motifStack` 
+
+Bioconductor package: [motifStack](https://bioconductor.org/packages/release/bioc/vignettes/motifStack/inst/doc/motifStack_HTML.html)
+
+####  `motifStack::motifPiles` 
+
+Bioconductor package [motifStack::motifPiles](https://bioconductor.org/packages/release/bioc/vignettes/motifStack/inst/doc/motifStack_HTML.html#motifPiles)
+
+```{r , eval=F}
+library(motifStack)
+library(ggplot2)
+
+library(ensembldb)
+library(EnsDb.Hsapiens.v86)
+
+dbCols.protein_domain <- listColumns(EnsDb.Hsapiens.v86, "protein_domain")
+
+`test-aastringset` <- ensembldb::proteins(
+  EnsDb.Hsapiens.v86,
+  filter = EntrezidFilter(c("116")),
+  # columns = c(dbCols.protein_domain),
+  return.type = "AAStringSet"
+)
+
+maskAAStringSet <- function(aastringset, mask = Mask(0)) {
+  Biostrings::consensusMatrix(aastringset)
+}
+
+## plot the logo stack with heatmap.
+# df <- data.frame(A=runif(n = 30), B=runif(n = 30), C=runif(n = 30), D=runif(n = 30))
+df <- Biostrings::consensusMatrix(`test-aastringset`, as.prob = TRUE)
+
+map2col <- function(x, pal){
+  rg <- range(x)
+  pal[findInterval(x, seq(rg[1], rg[2], length.out = length(pal)+1),
+    all.inside = TRUE)]
+}
+dl <- lapply(df, map2col, pal=heat.colors(10))
+
+## alignment of the pfms, this step will make the motif logos occupy
+## more space. Users can skip this alignment to see the difference.
+motif <- new("pcm", mat = as.matrix(df), name = "bin_SOLEXA")
+plot(motif0
+  
+motif <- new("pfm", mat = as.matrix(df), name = "bin_SOLEXA")
+plot(motif)
+```
+
+```{r , eval=F}
+library(motifStack)
+
+pfmsAligned <- motifStack::DNAmotifAlignment(
+  list(motif, motif)
+)
+
+motifStack::motifStack(motif)
+
+## plot motifs
+motifStack::motifPiles(
+  phylog = phylog, 
+  # pfms = pfmsAligned,
+  col.tree = rep(color, each = 5),
+  col.leaves = rep(rev(color), each = 5),
+  col.pfms2 = gpCol,
+  r.anno = rep(0.02, length(dl)),
+  col.anno = dl,
+  motifScale = "logarithmic",
+  plotIndex = TRUE,
+  groupDistance = 10
+)
+
+pcm <- read.table(
+  file.path(
+    find.package("motifStack"), 
+    "extdata", "bin_SOLEXA.pcm"
+  )
+)
+```
+
+# Figures 
+
+## ORF3a 
+
+```{r}
+P0DTC3.aaseq <- readRDS(paste(DATA_DIR, "P0DTC3.aaseq.rds", sep = "/"))
+P0DTC3.ELMs <- readRDS(paste(DATA_DIR, "P0DTC3.ELMs.rds", sep = "/"))
+P0DTC3.len <- length(P0DTC3.aaseq[[1]])
+```
+
+```{r}
+P0DTC3.ELMs.MyDomainURL <- P0DTC3.ELMs %>% 
+  dplyr::group_by(elm_identifier) %>% 
+  dplyr::group_map(
+    function(group, elmid) {
+      hits <- group %>% dplyr::transmute(
+        start = start, 
+        stop = stop, 
+        shape = 1, 
+        color = 2, 
+        elm = as.character(elmid[[1]])
+      )
+      group %>% dplyr::mutate(
+        MyDomainURL = .myDomain.encodeQuery(P0DTC3.len, hscale = 1, hits = as.list(hits))
+      )
+    }
+  )
+```
+
+## Reactome
+
+ReactomeContentService4R [vignette](https://chilampoon.github.io/projects/ReactomeGraph4R.html#Interactors)
+
+```{r}
+SARS2.ORF3a.Hs.Reactome.Enrichment.ToI.images["clot"]
+ReactomeContentService4R::map2RefEntities("LRP8")
+```
+
+## InterPro 
+
+```{r}
+SARS2.ORF3a.Hs.InterPro.Enrichment <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.InterPro.Enrichment.rds", sep = "/"))
+SARS2.ORF3a.Hs.InterPro.Enrichment.result <- SARS2.ORF3a.Hs.InterPro.Enrichment@result
+rownames(SARS2.ORF3a.Hs.InterPro.Enrichment.result) <- NULL
+
+knitr::kable(
+  SARS2.ORF3a.Hs.InterPro.Enrichment.result %>% dplyr::select(1:7) %>% head(20)
+) %>% kableExtra::as_image(
+  file = paste(TAB_DIR, "InterPro.Enrichment.Top_20.png", sep ="/"), width = 6
+)
+
+kableImage(
+  SARS2.ORF3a.Hs.InterPro.Enrichment.result %>% dplyr::select(1:7) %>% head(25),
+  file = paste(TAB_DIR, "InterPro.Enrichment.Top_25.png", sep ="/"), width = 6
+)
+```
+
+```{r}
+clusterProfiler::emapplot(SARS2.ORF3a.Hs.InterPro.Enrichment)
+```
+
+```{r}
+clusterProfiler::heatplot(
+  clusterProfiler::setReadable(
+    SARS2.ORF3a.Hs.InterPro.Enrichment, OrgDb = org.Hs.eg.db, keyType = "ENTREZID"
+  )
+)
+```
+
+## Pfam 
+
+```{r}
+SARS2.ORF3a.Hs.Pfam.Enrichment <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.Pfam.Enrichment.rds", sep ="/"))
+
+clusterProfiler::cnetplot(
+  DOSE::setReadable(
+    SARS2.ORF3a.Hs.Pfam.Enrichment, OrgDb = org.Hs.eg.db, keyType = "ENTREZID"
+  )
+)
+```
+
+## CDD 
+
+```{r}
+SARS2.ORF3a.Hs.CDD.Enrichment <- readRDS(paste(DATA_DIR, "SARS2.ORF3a.Hs.CDD.Enrichment.rds", sep ="/"))
+```
